@@ -6,6 +6,7 @@ import config
 
 
 bot = commands.Bot(command_prefix = config.prefix)
+g = Objects.Game()
 
 @bot.event
 async def on_ready():
@@ -76,9 +77,18 @@ async def unban(ctx, *, member):
             return
 
 @bot.command()
-async def create(message):
-    player = Objects.Player(message)
-    print(player.name) 
+async def create(ctx, args):
+    player = Objects.Player(args)
+    g.add(player)
+    await ctx.send(str(player))
 
+@bot.command()
+async def murder(ctx, args):
+    player_id = int(args) #TODO make sure args is actually an integer and not a string or something
+    g.kill(player_id)
 
+@bot.command()
+async def GAME(ctx):
+    await ctx.send(str(g))
+    
 bot.run(config.token)

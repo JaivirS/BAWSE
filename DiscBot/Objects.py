@@ -22,6 +22,9 @@ class Player:
         self.name = name
         self._killtoken = generateToken()
         self.contract = list()
+
+    def __str__(self) -> str:
+        return "Name: {}\nKill token: {}".format(self.name, self._killtoken)
     
 def generateToken() -> int:
     ''' returns a random 5 digit number'''
@@ -49,6 +52,25 @@ class Contract:
         self.assignedTo = aTo 
         self.completed = False
 
+class Game:
+    ''''''
+    assassins: list()
 
+    def __init__(self) -> None:
+        self.assassins = list()
+
+    def kill(self, id:int) -> str:
+        for man in self.assassins:
+            if id == man._killToken:
+                m = self.assassins.pop(self.assassins.index(man))
+                del(m)
+            return "{} has been assasinated".format(man.name)
+        return "Invalid Kill Token"
     
-    
+    def __str__(self) -> str:
+        ''' Returns the string representaion of the game'''
+        return str(self.assassins)
+
+    def add(self, assassin: Player) -> None:
+        ''' Adds <assassin> to the game'''
+        self.assassins.append(assassin)
