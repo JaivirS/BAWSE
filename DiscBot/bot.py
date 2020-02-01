@@ -1,8 +1,11 @@
 import discord
 import random
 from discord.ext import commands
+import Player
+import config
 
-bot = commands.Bot(command_prefix = '.')
+
+bot = commands.Bot(command_prefix = config.prefix)
 
 @bot.event
 async def on_ready():
@@ -71,5 +74,11 @@ async def unban(ctx, *, member):
             await ctx.guild.unban(user)
             await ctx.send(f'Unbanned {user.mention}')
             return
+
+@bot.command()
+async def create(message):
+    player = Player.Player(message)
+    print(player.name) 
+
 
 bot.run('NjcxMDE5Nzk2MTkxNTEwNTI5.Xi22dQ.E8DRDQoarnim194Tm3IKqCR9Vko')
