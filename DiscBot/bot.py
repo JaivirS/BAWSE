@@ -2,6 +2,8 @@ import discord
 import random
 from discord.ext import commands
 
+ids = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
+
 bot = commands.Bot(command_prefix = '.')
 
 @bot.event
@@ -72,4 +74,8 @@ async def unban(ctx, *, member):
             await ctx.send(f'Unbanned {user.mention}')
             return
 
-bot.run('NjcxMDE5Nzk2MTkxNTEwNTI5.Xi22dQ.E8DRDQoarnim194Tm3IKqCR9Vko')
+@bot.command(aliases=ids)
+async def kill(ctx):
+    await ctx.send('blah')
+
+bot.run('NjcxMDE5Nzk2MTkxNTEwNTI5.XjT34w.gzm1mzasH1qhvnm_0BYHB15shAk')
