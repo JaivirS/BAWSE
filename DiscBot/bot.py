@@ -85,7 +85,7 @@ async def create(ctx, args):
 @bot.command()
 async def murder(ctx, args):
     player_id = int(args) #TODO make sure args is actually an integer and not a string or something
-    g.kill(player_id)
+    await ctx.send(g.kill(player_id))
 
 @bot.command()
 async def GAME(ctx):

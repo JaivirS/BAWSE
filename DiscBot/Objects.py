@@ -15,17 +15,21 @@ class Player:
     name: str 
     _killtoken: int
     contract: list
-    isAlive: bool 
+    status: bool 
 
     def __init__(self, name: str) -> None:
         ''' Initialize this player object '''
         self.name = name
         self._killtoken = generateToken()
         self.contract = list()
+        self.status = True
 
     def __str__(self) -> str:
-        return "Name: {}\nKill token: {}".format(self.name, self._killtoken)
+        return "Name: {}\nStatus: {}\nKill token: {}".format(self.name, self.status, self._killtoken)
     
+    def getToken(self)-> int:
+        return int(self._killtoken)
+
 def generateToken() -> int:
     ''' returns a random 5 digit number'''
     return random.randint(10000, 99999)
@@ -53,24 +57,39 @@ class Contract:
         self.completed = False
 
 class Game:
-    ''''''
+    '''TODO'''
     assassins: list()
 
     def __init__(self) -> None:
         self.assassins = list()
 
     def kill(self, id:int) -> str:
-        for man in self.assassins:
-            if id == man._killToken:
-                m = self.assassins.pop(self.assassins.index(man))
-                del(m)
-            return "{} has been assasinated".format(man.name)
-        return "Invalid Kill Token"
+        for i in range(len(self.assassins)):
+            killed = False
+            if id == self.assassins[i]._killtoken:
+                self.assassins[i].status = False
+                killed = True
+                return ("{} has been assasinated".format(self.assassins[i].name))
+        if not killed:
+            return ("Invalid Kill Token")
     
     def __str__(self) -> str:
         ''' Returns the string representaion of the game'''
-        return str(self.assassins)
+        str_rep = ''
+        for assassin in self.assassins:
+            str_rep += '{}\n'.format(str(assassin))
+        return str_rep
 
     def add(self, assassin: Player) -> None:
         ''' Adds <assassin> to the game'''
         self.assassins.append(assassin)
+
+if __name__ == "__main__":
+    newGame = Game()
+    names = ['Jaivir', 'Simrat', 'Juan', 'Akksayen']
+    [newGame.add(Player(name)) for name in names]
+    print(newGame)
+    tooken = newGame.assassins[3].getToken()
+    print(tooken)
+    newGame.kill(tooken)
+    print(newGame)
