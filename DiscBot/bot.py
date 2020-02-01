@@ -1,7 +1,7 @@
 import discord
 import random
 from discord.ext import commands
-import Player
+import Objects
 import config
 
 
@@ -77,8 +77,8 @@ async def unban(ctx, *, member):
 
 @bot.command()
 async def create(message):
-    player = Player.Player(message)
+    player = Objects.Player(message)
     print(player.name) 
 
 
-bot.run('NjcxMDE5Nzk2MTkxNTEwNTI5.Xi22dQ.E8DRDQoarnim194Tm3IKqCR9Vko')
+bot.run(config.token)
