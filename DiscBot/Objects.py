@@ -6,7 +6,7 @@ class Player:
 
     === Attributes ===
     - name: The discord name of this player
-    - _killToken: The 5 digit randomly generated number that will kill this player
+    - _killtoken: The 5 digit randomly generated number that will kill this player
                if typed into the chat
     - contract: A contract that must be completed in order to get paid. 
     - isAlive: The current state of this player.
@@ -25,7 +25,9 @@ class Player:
         self.status = True
 
     def __str__(self) -> str:
-        return "Name: {}\nStatus: {}\nKill token: {}".format(self.name, self.status, self._killtoken)
+        if self.status is True:
+            return "Name: {}\nStatus: Alive\nKill token: {}\n".format(self.name, self._killtoken)
+        return "Name: {}\nStatus: Dead\nKill token: {}".format(self.name, self._killtoken)
     
     def getToken(self)-> int:
         return int(self._killtoken)
@@ -69,7 +71,7 @@ class Game:
             if id == self.assassins[i]._killtoken:
                 self.assassins[i].status = False
                 killed = True
-                return ("{} has been assasinated".format(self.assassins[i].name))
+                return ("{} has been assasinated\n".format(self.assassins[i].name))
         if not killed:
             return ("Invalid Kill Token")
     
@@ -84,12 +86,18 @@ class Game:
         ''' Adds <assassin> to the game'''
         self.assassins.append(assassin)
 
+    def getPlayer(self, id:int) -> str:
+        ''' returns the player with the <id>'''
+        for player in self.assassins:
+            if player._killtoken == id:
+                return player.name             
+
 if __name__ == "__main__":
     newGame = Game()
     names = ['Jaivir', 'Simrat', 'Juan', 'Akksayen']
     [newGame.add(Player(name)) for name in names]
     print(newGame)
     tooken = newGame.assassins[3].getToken()
-    print(tooken)
-    newGame.kill(tooken)
+    msg = newGame.kill(tooken)
+    print(msg)
     print(newGame)
