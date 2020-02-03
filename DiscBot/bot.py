@@ -105,8 +105,12 @@ async def murder(ctx, args):
             try:
                 await mem.send("You have been assasinated")
             except AttributeError:
-                pass 
-    await ctx.send(g.kill(player_id))   
+                pass    
+    await ctx.send(g.kill(player_id))
+
+@bot.command()
+async def rules(ctx):
+    pass
 
 @bot.command()
 async def GAME(ctx):

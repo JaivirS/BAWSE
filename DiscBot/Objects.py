@@ -8,24 +8,24 @@ class Player:
     - name: The discord name of this player
     - _killtoken: The 5 digit randomly generated number that will kill this player
                if typed into the chat
-    - contracts: A list of contracts that must be completed in order to get paid. 
+    - contract: The contract to complete by this player. 
     - isAlive: The current state of this player.
 
     """
     name: str 
     _killtoken: int
-    contracts: list
+    contract: list
     status: bool 
 
     def __init__(self, name: str) -> None:
         ''' Initialize this player object '''
         self.name = name
         self._killtoken = generateToken()
-        self.contracts = list()
-        self.status = True
+        self.contract = None
+        self.isAlive = True
 
     def __str__(self) -> str:
-        if self.status is True:
+        if self.isAlive is True:
             return "Name: {}\nStatus: Alive\nKill token: {}\n".format(self.name, self._killtoken)
         return "Name: {}\nStatus: Dead\nKill token: {}".format(self.name, self._killtoken)
     
@@ -34,10 +34,10 @@ class Player:
     
     def getContract(self) -> None:
         '''Returns the string representation of all the contracts'''
-        return str(self.contracts[-1])
+        return str(self.contract)
     
     def update(self) -> None:
-        self.contracts[-1]._update()
+        self.contract._update()
 
 def generateToken() -> int:
     ''' returns a random 5 digit number'''
@@ -81,7 +81,7 @@ class Contract:
     def assign(self, assassin: Player) -> None:
         ''' assigns this contract to <assassin.'''
         self.assignedTo = assassin
-        assassin.contracts.append(self)
+        assassin.contracts = (self)
     
     def _update(self) -> None:
         '''completes this contract'''
@@ -116,9 +116,12 @@ class Game:
         for i in range(len(self.assassins)):
             killed = False
             if id == self.assassins[i]._killtoken:
-                self.assassins[i].status = False
-                killed = True
-                return ("Contract confirmed, {} has been assasinated\n".format(self.assassins[i].name))
+                if self.assassins[i].isAlive is True:
+                    self.assassins[i].isAlive = False
+                    killed = True
+                    return ("Contract confirmed, {} has been assasinated\n".format(self.assassins[i].name))
+                else:
+                    return ('{} is already dead!'.format(self.assassins[i].name))
         if not killed:
             return ("Invalid Kill Token")
 
@@ -152,6 +155,8 @@ class Game:
     
     def distribute_conracts(self) -> None:
         ''' assigns all contracts to all the players in the game'''
+        #Fix Assignment 
+        #dead people should not be killed again
         i = len(self.assassins) -1
         for c in self.contracts:
             c.assign(self.assassins[i])
