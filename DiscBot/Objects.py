@@ -8,20 +8,20 @@ class Player:
     - name: The discord name of this player
     - _killtoken: The 5 digit randomly generated number that will kill this player
                if typed into the chat
-    - contract: A contract that must be completed in order to get paid. 
+    - contracts: A list of contracts that must be completed in order to get paid. 
     - isAlive: The current state of this player.
 
     """
     name: str 
     _killtoken: int
-    contract: list
+    contracts: list
     status: bool 
 
     def __init__(self, name: str) -> None:
         ''' Initialize this player object '''
         self.name = name
         self._killtoken = generateToken()
-        self.contract = list()
+        self.contracts = list()
         self.status = True
 
     def __str__(self) -> str:
@@ -31,6 +31,13 @@ class Player:
     
     def getToken(self)-> int:
         return int(self._killtoken)
+    
+    def getContract(self) -> None:
+        '''Returns the string representation of all the contracts'''
+        return str(self.contracts[-1])
+    
+    def update(self) -> None:
+        self.contracts[-1]._update()
 
 def generateToken() -> int:
     ''' returns a random 5 digit number'''
@@ -42,61 +49,127 @@ class Contract:
     
     === Attributes ===
     - target: The target for the assasin that the contract is assigned tol 
-    -  assignedTo: The assasin who is assigned this contract 
+    - assignedTo: The assasin who is assigned this contract 
     - completed: The current state of this contract 
+    - reward : The reward for completing this contract
 
     === Representation Invariants === 
     - completed must always be a boolean value 
+    - reward > -1
     '''
     target: Player
     assignedTo: Player
     completed: bool
+    reward: int
 
-    def __init__(self, tar: Player, aTo: Player) -> None:
+    def __init__(self, tar: Player) -> None:
         ''' Initialize a Conctract '''
         self.target = tar
-        self.assignedTo = aTo 
+        self.assignedTo = None 
         self.completed = False
+        self.reward = 100 
+    
+    def __str__(self) -> str:
+        ''' returns the string representation of this contract'''
+        return "Assassin: {} Target: {} Reward: {}\n".format(self.assignedTo.name, self.target.name, self.reward)
+
+    def claim(self, code:int) -> None:
+        ''' Claim this contract by confirming if <code> is == to <self.assignedTo>.<_killtoken>'''
+        if code == self.assignedTo._killtoken:
+            self.completed = True 
+
+    def assign(self, assassin: Player) -> None:
+        ''' assigns this contract to <assassin.'''
+        self.assignedTo = assassin
+        assassin.contracts.append(self)
+    
+    def _update(self) -> None:
+        '''completes this contract'''
+        self.completed = True
+
+    def is_completed(self) -> bool:
+        ''' check to see if this contract has been claimed'''
+        return self.completed
+
 
 class Game:
-    '''TODO'''
+    '''A game of Assassin 
+    === Attributes ===
+    - assasins: A list of all the assassins in the game
+    - contracts: A list of all the contracts in the game
+    '''
     assassins: list()
+    contracts: list() 
 
     def __init__(self) -> None:
         self.assassins = list()
+        self.contracts = list()
 
-    def kill(self, id:int) -> str:
-        for i in range(len(self.assassins)):
-            killed = False
-            if id == self.assassins[i]._killtoken:
-                self.assassins[i].status = False
-                killed = True
-                return ("{} has been assasinated\n".format(self.assassins[i].name))
-        if not killed:
-            return ("Invalid Kill Token")
-    
     def __str__(self) -> str:
         ''' Returns the string representaion of the game'''
         str_rep = ''
         for assassin in self.assassins:
             str_rep += '{}\n'.format(str(assassin))
         return str_rep
+    
+    def kill(self, id:int) -> str:
+        for i in range(len(self.assassins)):
+            killed = False
+            if id == self.assassins[i]._killtoken:
+                self.assassins[i].status = False
+                killed = True
+                return ("Contract confirmed, {} has been assasinated\n".format(self.assassins[i].name))
+        if not killed:
+            return ("Invalid Kill Token")
 
-    def add(self, assassin: Player) -> None:
+    def addPlayer(self, assassin: Player) -> None:
         ''' Adds <assassin> to the game'''
         self.assassins.append(assassin)
 
-    def getPlayer(self, id:int) -> str:
+    def addContract(self, assassin: Player) -> None:
+        ''' Creates a contract on <assasin>'''
+        self.contracts.append(Contract(assassin))
+
+    def getPlayer(self, name:str) -> str:
+        ''' returns the player with the <name>'''
+        for i in range(len(self.assassins)):
+            if self.assassins[i].name == name:
+                return self.assassins[i]
+    
+    def getPlayerId(self, idd:int) -> str:
         ''' returns the player with the <id>'''
-        for player in self.assassins:
-            if player._killtoken == id:
-                return player.name             
+        for i in range(len(self.assassins)):
+            if self.assassins[i]._killtoken == idd:
+                return self.assassins[i].name
+    
+    def getContracts(self) -> str:
+        '''returns the string representation of all the contracts in the game'''
+        string = ''
+        for c in self.contracts:
+            string += str(c) 
+        
+        return string          
+    
+    def distribute_conracts(self) -> None:
+        ''' assigns all contracts to all the players in the game'''
+        i = len(self.assassins) -1
+        for c in self.contracts:
+            c.assign(self.assassins[i])
+            i-=1
 
 if __name__ == "__main__":
     newGame = Game()
     names = ['Jaivir', 'Simrat', 'Juan', 'Akksayen']
-    [newGame.add(Player(name)) for name in names]
+    
+    for n in names:
+        temp = Player(n)
+        newGame.addPlayer(temp)
+        newGame.addContract(temp)    
+    
+    newGame.distribute_conracts()
     print(newGame)
+    print(newGame.getContracts())
+    print(newGame.assassins[1].getContract())
     tooken = newGame.assassins[3].getToken()
     msg = newGame.kill(tooken)
     print(msg)

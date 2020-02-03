@@ -78,21 +78,30 @@ async def unban(ctx, *, member):
 
 @bot.command()
 async def start(ctx):
+    
     members = list()
     [members.append(member) for member in bot.get_all_members()]
+    
     for index in range(len(members)-1):
-        try: 
-            await members[index].send('Welcome to the Game {}'.format(members[index].display_name))
+        temp = Objects.Player(members[index].display_name)
+        g.addPlayer(temp)
+        g.addContract(temp)
+    g.distribute_conracts()
+
+    for index in range(len(members)-1):
+        temp = g.getPlayer(members[index].display_name)
+        try:
+            await members[index].send('Welcome to the Game {}, this is your contract.\n{}'.format(temp.name, temp.getContract()))
         except AttributeError:
             pass
-        g.add(Objects.Player(members[index].display_name))
+
     await ctx.send(str(g))
 
 @bot.command()
 async def murder(ctx, args):
     player_id = int(args) #TODO make sure args is actually an integer and not a string or something
     for mem in bot.get_all_members():
-        if g.getPlayer(player_id) == mem.display_name:
+        if g.getPlayerId(player_id) == mem.display_name:
             try:
                 await mem.send("You have been assasinated")
             except AttributeError:
