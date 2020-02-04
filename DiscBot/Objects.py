@@ -81,7 +81,7 @@ class Contract:
     def assign(self, assassin: Player) -> None:
         ''' assigns this contract to <assassin.'''
         self.assignedTo = assassin
-        assassin.contracts = (self)
+        assassin.contract = (self)
     
     def _update(self) -> None:
         '''completes this contract'''
@@ -97,13 +97,19 @@ class Game:
     === Attributes ===
     - assasins: A list of all the assassins in the game
     - contracts: A list of all the contracts in the game
+    - _isRunning: Current state of the game 
+
+    === Representation Invariants === 
+    - _isRunning must only be a boolean value
     '''
     assassins: list()
-    contracts: list() 
+    contracts: list()
+    _isRunning: bool 
 
     def __init__(self) -> None:
         self.assassins = list()
         self.contracts = list()
+        self._isRunning = False
 
     def __str__(self) -> str:
         ''' Returns the string representaion of the game'''
@@ -150,13 +156,23 @@ class Game:
         string = ''
         for c in self.contracts:
             string += str(c) 
-        
-        return string          
+
+        return string  
+
+    def runGame(self) -> None:
+        '''Runs the game'''
+        self._isRunning = True  
+
+    def is_running(self) -> None:
+        ''' Returns true if <self._isRunning> is True:'''
+        return self._isRunning 
+
+    def Endgame(self) -> None:
+        ''' Ends this game'''
+        self._isRunning = False      
     
     def distribute_conracts(self) -> None:
         ''' assigns all contracts to all the players in the game'''
-        #Fix Assignment 
-        #dead people should not be killed again
         i = len(self.assassins) -1
         for c in self.contracts:
             c.assign(self.assassins[i])

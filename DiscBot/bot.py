@@ -78,24 +78,32 @@ async def unban(ctx, *, member):
 
 @bot.command()
 async def start(ctx):
-    
-    members = list()
-    [members.append(member) for member in bot.get_all_members()]
-    
-    for index in range(len(members)-1):
-        temp = Objects.Player(members[index].display_name)
-        g.addPlayer(temp)
-        g.addContract(temp)
-    g.distribute_conracts()
+    if g.is_running() is False:
+        g.runGame()
+        members = list()
+        [members.append(member) for member in bot.get_all_members()]
+        
+        for index in range(len(members)-1):
+            temp = Objects.Player(members[index].display_name)
+            g.addPlayer(temp)
+            g.addContract(temp)
+        g.distribute_conracts()
 
-    for index in range(len(members)-1):
-        temp = g.getPlayer(members[index].display_name)
-        try:
-            await members[index].send('Welcome to the Game {}, this is your contract.\n{}'.format(temp.name, temp.getContract()))
-        except AttributeError:
-            pass
+        for index in range(len(members)-1):
+            temp = g.getPlayer(members[index].display_name)
+            try:
+                await members[index].send('Welcome to the Game {}, this is your contract.\n{}'.format(temp.name, temp.getContract()))
+            except AttributeError:
+                pass
 
-    await ctx.send(str(g))
+        await ctx.send(str(g))
+    else:
+        await ctx.send('ಠ_ಠ A game is already in progress ಠ_ಠ')
+
+@bot.command()
+async def endgame(ctx):
+    g.Endgame()
+    await ctx.send("GAME OVER\nThanks for playing!")
 
 @bot.command()
 async def murder(ctx, args):
@@ -122,4 +130,5 @@ async def who(ctx):
         try: await mem.send("hello")
         except AttributeError:
             pass
+
 bot.run(config.token)
