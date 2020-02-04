@@ -106,7 +106,7 @@ async def endgame(ctx):
     await ctx.send("GAME OVER\nThanks for playing!")
 
 @bot.command()
-async def murder(ctx, args):
+async def kill(ctx, args):
     player_id = int(args) #TODO make sure args is actually an integer and not a string or something
     for mem in bot.get_all_members():
         if g.getPlayerId(player_id) == mem.display_name:

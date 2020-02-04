@@ -169,6 +169,8 @@ class Game:
 
     def Endgame(self) -> None:
         ''' Ends this game'''
+        self.assassins.clear()
+        self.contracts.clear()
         self._isRunning = False      
     
     def distribute_conracts(self) -> None:
