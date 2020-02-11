@@ -1,0 +1,31 @@
+++++++++++ Admin Only ++++++++++
+
+.kick   - Kicks people from the server
+
+.ban    - Bans people from the server
+
+.unban  - Unbans people from the server
+
+.parlay - Ends the game no matter the  
+
+
+++++++++++ In Game ++++++++++
+
+.rules - Returns the rules of the game of Assassin
+
+.help  - Returns all the commands used in this server
+
+.start - Starts a game of Assassin. Every member in the 
+         server will be automatically put into the game.
+
+         Once a game begins, ".start" will not start 
+         another game until the first one is either 
+         finished or the admin forces a shutdown uing
+         .parlay
+
+.state - Returns the current state of the game. Use it
+         to see who is dead and alive!
+
+.kill [ killtoken ] -  If the killtoken is correct, the
+                       player with this token will be 
+                       assassinated!

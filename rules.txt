@@ -1,0 +1,9 @@
+++++++++++ R U L E S ++++++++++
+
+**DISCLAIMER**: This game is based on honesty and integerty
+
+```diff
+"The rules, without them we live with the animals" 
+-John Wick
+```
+Assassin is a simple game. Once the .start command has been initiated, everyone in the server will be automatically added to the game. You will recieve a Kill Token, and a Contract. Be careful not to leak your Kill Token as that is how the game tracks if you are dead or alive. Once you shoot, tag, etc your target with your weapon of choice, you win their Kill Token and can now enter .kill *token* to finish them off. Last assassin alive wins the game!

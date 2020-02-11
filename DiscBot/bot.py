@@ -51,6 +51,16 @@ async def _8ball(ctx, *, ques):
     await ctx.send(f'Question: {ques}\n Answer: {random.choice(responses)}')
 
 @bot.command()
+async def cmds(ctx):
+    with open("C:\\Users\\Simrat's PC\\Documents\\BAWSE\\cmd.txt") as f:
+        await ctx.send(f.read())
+
+@bot.command()
+async def rules(ctx):
+    with open("C:\\Users\\Simrat's PC\\Documents\\BAWSE\\rules.txt") as f:
+        await ctx.send(f.read())
+
+@bot.command()
 async def cls(ctx, amount=5):
     await ctx.channel.purge(limit=amount)
 
@@ -100,7 +110,7 @@ async def start(ctx):
         await ctx.send('ಠ_ಠ A game is already in progress ಠ_ಠ')
 
 @bot.command()
-async def endgame(ctx):
+async def parlay(ctx):
     g.Endgame()
     await ctx.send("GAME OVER\nThanks for playing!")
 
@@ -120,20 +130,9 @@ async def kill(ctx, args):
     else:
         await ctx.send("Invalid Target")
 
-
 @bot.command()
-async def rules(ctx):
-    pass
-
-@bot.command()
-async def GAME(ctx):
+async def state(ctx):
     await ctx.send(str(g))
 
-@bot.command()
-async def who(ctx):    
-    for mem in bot.get_all_members():
-        try: await mem.send("hello")
-        except AttributeError:
-            pass
 
 bot.run(config.token)
