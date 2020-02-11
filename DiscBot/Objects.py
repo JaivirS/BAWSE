@@ -177,7 +177,7 @@ class Game:
         ''' assigns all contracts to all the players in the game'''
         for c in self.contracts:
             t = [x for x in self.assassins if x != c.target]
-            print(t)
+            print(t.__str__())
             x = random.choice(t)
             c.assign(x)
 
