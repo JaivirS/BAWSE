@@ -175,10 +175,11 @@ class Game:
     
     def distribute_conracts(self) -> None:
         ''' assigns all contracts to all the players in the game'''
-        i = len(self.assassins) -1
         for c in self.contracts:
-            c.assign(self.assassins[i])
-            i-=1
+            t = [x for x in self.assassins if x != c.target]
+            print(t)
+            x = random.choice(t)
+            c.assign(x)
 
 if __name__ == "__main__":
     newGame = Game()

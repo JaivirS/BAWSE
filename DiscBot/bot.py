@@ -2,10 +2,10 @@ import discord
 import random
 from discord.ext import commands
 import Objects
-import config
+#import config
 
 
-bot = commands.Bot(command_prefix = config.prefix)
+bot = commands.Bot(command_prefix = '.')
 g = Objects.Game()
 
 @bot.event
@@ -131,4 +131,4 @@ async def who(ctx):
         except AttributeError:
             pass
 
-bot.run(config.token)
+bot.run('NjcxMDE5Nzk2MTkxNTEwNTI5.XjjHlA.qsl3n1r4_jURGLmFrDrJH_qpcoU')
