@@ -86,7 +86,7 @@ async def start(ctx):
         for index in range(len(members)-1):
             temp = Objects.Player(members[index].display_name)
             g.addPlayer(temp)
-            g.addContract(temp)
+        
         g.distribute_conracts()
 
         for index in range(len(members)-1):

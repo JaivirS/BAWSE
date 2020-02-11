@@ -1,5 +1,7 @@
 import random
 
+GAME_MODE = {1: "Team vs Team", 2: "Last Man Standing", 3: "Elite"}
+
 class Player:
     """
     A class that represents a plyer in the game of Assasin
@@ -62,10 +64,10 @@ class Contract:
     completed: bool
     reward: int
 
-    def __init__(self, tar: Player) -> None:
+    def __init__(self, mar: Player, tar:Player) -> None:
         ''' Initialize a Conctract '''
         self.target = tar
-        self.assignedTo = None 
+        self.assignedTo = mar 
         self.completed = False
         self.reward = 100 
     
@@ -91,6 +93,31 @@ class Contract:
         ''' check to see if this contract has been claimed'''
         return self.completed
 
+class Team:
+    '''A team of multiple Assassins
+    === Attributes ===
+    - members: All the members in this team
+    - size: The size of the team 
+    '''
+    members: list()
+    size: int
+    
+    def __init__(self, num: int) -> None:
+        '''Initialize this team'''
+        self.size = num
+        self.members = list()
+
+    def initiate(self, initiates:list) -> None:
+        ''' initiate <members> to this team'''
+        self.members.extend(initiates)
+    
+    def is_member(self, token:int) -> bool:
+        '''Return True if a player with <token> is on this team'''
+        keys = list()
+        for mem in self.members:
+            keys.append(mem.getToken())
+        
+        return token in keys        
 
 class Game:
     '''A game of Assassin 
@@ -104,7 +131,8 @@ class Game:
     '''
     assassins: list()
     contracts: list()
-    _isRunning: bool 
+    _isRunning: bool
+ 
 
     def __init__(self) -> None:
         self.assassins = list()
@@ -134,10 +162,6 @@ class Game:
     def addPlayer(self, assassin: Player) -> None:
         ''' Adds <assassin> to the game'''
         self.assassins.append(assassin)
-
-    def addContract(self, assassin: Player) -> None:
-        ''' Creates a contract on <assasin>'''
-        self.contracts.append(Contract(assassin))
 
     def getPlayer(self, name:str) -> str:
         ''' returns the player with the <name>'''
@@ -175,13 +199,22 @@ class Game:
     
     def distribute_conracts(self) -> None:
         ''' assigns all contracts to all the players in the game'''
-        for c in self.contracts:
-            t = [x for x in self.assassins if x != c.target]
-            print(t.__str__())
-            x = random.choice(t)
-            c.assign(x)
+        random.shuffle(self.assassins)
+        i = 0
+        while i <= len(self.assassins)-2:
+            c = Contract(self.assassins[i], self.assassins[i+1])
+            i-=1
+            c.assign(self.assassins[i])
+            self.contracts.append(c)
+            i+=1
 
-if __name__ == "__main__":
+        new_c = Contract(self.assassins[-1], self.assassins[0])
+        new_c.assign(self.assassins[-1])
+        self.contracts.append(new_c)
+        
+
+
+'''if __name__ == "__main__":
     newGame = Game()
     names = ['Jaivir', 'Simrat', 'Juan', 'Akksayen']
     
@@ -198,3 +231,4 @@ if __name__ == "__main__":
     msg = newGame.kill(tooken)
     print(msg)
     print(newGame)
+'''
