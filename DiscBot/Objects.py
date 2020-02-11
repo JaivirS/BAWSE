@@ -38,6 +38,10 @@ class Player:
         '''Returns the string representation of all the contracts'''
         return str(self.contract)
     
+    def assign(self, c) -> None:
+        '''TODO'''
+        self.contract = c
+    
     def update(self) -> None:
         self.contract._update()
 
@@ -66,8 +70,8 @@ class Contract:
 
     def __init__(self, mar: Player, tar:Player) -> None:
         ''' Initialize a Conctract '''
-        self.target = tar
         self.assignedTo = mar 
+        self.target = tar
         self.completed = False
         self.reward = 100 
     
@@ -79,11 +83,6 @@ class Contract:
         ''' Claim this contract by confirming if <code> is == to <self.assignedTo>.<_killtoken>'''
         if code == self.assignedTo._killtoken:
             self.completed = True 
-
-    def assign(self, assassin: Player) -> None:
-        ''' assigns this contract to <assassin.'''
-        self.assignedTo = assassin
-        assassin.contract = (self)
     
     def _update(self) -> None:
         '''completes this contract'''
@@ -91,33 +90,7 @@ class Contract:
 
     def is_completed(self) -> bool:
         ''' check to see if this contract has been claimed'''
-        return self.completed
-
-class Team:
-    '''A team of multiple Assassins
-    === Attributes ===
-    - members: All the members in this team
-    - size: The size of the team 
-    '''
-    members: list()
-    size: int
-    
-    def __init__(self, num: int) -> None:
-        '''Initialize this team'''
-        self.size = num
-        self.members = list()
-
-    def initiate(self, initiates:list) -> None:
-        ''' initiate <members> to this team'''
-        self.members.extend(initiates)
-    
-    def is_member(self, token:int) -> bool:
-        '''Return True if a player with <token> is on this team'''
-        keys = list()
-        for mem in self.members:
-            keys.append(mem.getToken())
-        
-        return token in keys        
+        return self.completed    
 
 class Game:
     '''A game of Assassin 
@@ -125,6 +98,7 @@ class Game:
     - assasins: A list of all the assassins in the game
     - contracts: A list of all the contracts in the game
     - _isRunning: Current state of the game 
+    - _dead: A list of all the dead players
 
     === Representation Invariants === 
     - _isRunning must only be a boolean value
@@ -132,12 +106,14 @@ class Game:
     assassins: list()
     contracts: list()
     _isRunning: bool
+    _dead: list()
  
 
     def __init__(self) -> None:
         self.assassins = list()
         self.contracts = list()
         self._isRunning = False
+        self._dead = list()
 
     def __str__(self) -> str:
         ''' Returns the string representaion of the game'''
@@ -146,18 +122,36 @@ class Game:
             str_rep += '{}\n'.format(str(assassin))
         return str_rep
     
-    def kill(self, id:int) -> str:
+    def kill(self, id:int, assassin_name: str) -> str:
         for i in range(len(self.assassins)):
             killed = False
             if id == self.assassins[i]._killtoken:
                 if self.assassins[i].isAlive is True:
                     self.assassins[i].isAlive = False
                     killed = True
-                    return ("Contract confirmed, {} has been assasinated\n".format(self.assassins[i].name))
+                    name = self.assassins[i].name
+                    self._on_death(id, assassin_name)
+                    return ("Contract confirmed, {} has been assasinated\n".format(name))
                 else:
                     return ('{} is already dead!'.format(self.assassins[i].name))
         if not killed:
             return ("Invalid Kill Token")
+
+    def _on_death(self, dead_id: int, name:str) -> None:
+        '''Removes the dead player in the game and assigns a new contract'''
+        
+        for a in self.assassins:
+            if a.name == self.getPlayer(name):
+                assassin = a
+            if a.name == self.getPlayerId(dead_id):
+                killed_player = a
+        
+        c = killed_player.contract
+        c.assignTo = assassin
+        assassin.assign(c)
+        self._dead.append(self.assassins.pop(self.assassins.index(killed_player)))
+        
+
 
     def addPlayer(self, assassin: Player) -> None:
         ''' Adds <assassin> to the game'''
@@ -181,7 +175,11 @@ class Game:
         for c in self.contracts:
             string += str(c) 
 
-        return string  
+    
+    def _get_a_contract(self, name:str) -> str:
+        for a in self.assassins:
+            if a.name == name:
+                return a.getContract()  
 
     def runGame(self) -> None:
         '''Runs the game'''
@@ -197,20 +195,23 @@ class Game:
         self.contracts.clear()
         self._isRunning = False      
     
-    def distribute_conracts(self) -> None:
+    def distribute_contracts(self) -> None:
         ''' assigns all contracts to all the players in the game'''
+        
         random.shuffle(self.assassins)
-        i = 0
-        while i <= len(self.assassins)-2:
-            c = Contract(self.assassins[i], self.assassins[i+1])
-            i-=1
-            c.assign(self.assassins[i])
-            self.contracts.append(c)
-            i+=1
-
-        new_c = Contract(self.assassins[-1], self.assassins[0])
-        new_c.assign(self.assassins[-1])
-        self.contracts.append(new_c)
+        i = 1
+        
+        for player in self.assassins:
+            if i < len(self.assassins):
+                c = Contract(player, self.assassins[i])
+                player.assign(c)
+                i +=1
+            else:
+                i = 0
+                c = Contract(player, self.assassins[i])
+                print(c)
+                player.assign(c)
+                
         
 
 

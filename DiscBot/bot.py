@@ -87,7 +87,7 @@ async def start(ctx):
             temp = Objects.Player(members[index].display_name)
             g.addPlayer(temp)
         
-        g.distribute_conracts()
+        g.distribute_contracts()
 
         for index in range(len(members)-1):
             temp = g.getPlayer(members[index].display_name)
@@ -108,13 +108,16 @@ async def endgame(ctx):
 @bot.command()
 async def kill(ctx, args):
     player_id = int(args) #TODO make sure args is actually an integer and not a string or something
+    name = ctx.author.display_name
     for mem in bot.get_all_members():
         if g.getPlayerId(player_id) == mem.display_name:
             try:
                 await mem.send("You have been assasinated")
+                await ctx.author.send("{}".format(g._get_a_contract(name)))
             except AttributeError:
                 pass    
-    await ctx.send(g.kill(player_id))
+    await ctx.send(g.kill(player_id, name))
+
 
 @bot.command()
 async def rules(ctx):
