@@ -1,4 +1,5 @@
 import random
+from typing import Union
 
 GAME_MODE = {1: "Team vs Team", 2: "Last Man Standing", 3: "Elite"}
 
@@ -16,34 +17,38 @@ class Player:
     """
     name: str 
     _killtoken: int
-    contract: list
+    _contract: None
     status: bool 
 
     def __init__(self, name: str) -> None:
         ''' Initialize this player object '''
         self.name = name
         self._killtoken = generateToken()
-        self.contract = None
+        self._contract = None
         self.isAlive = True
 
     def __str__(self) -> str:
         if self.isAlive is True:
-            return "Name: {}\nStatus: Alive\nKill token: {}\n".format(self.name, self._killtoken)
-        return "Name: {}\nStatus: Dead\nKill token: {}".format(self.name, self._killtoken)
+            return "Name: {}\nStatus: Alive\n".format(self.name)
+        return "Name: {}\nStatus: Dead\n".format(self.name)
     
+    def info(self):
+        '''Returns all the info of this player'''
+        return "Name: {}\nKill Token: {}\nHere is your contract\n{}".format(self.name, self._killtoken, self._contract)
+
     def getToken(self)-> int:
         return int(self._killtoken)
     
     def getContract(self) -> None:
         '''Returns the string representation of all the contracts'''
-        return str(self.contract)
+        return str(self._contract)
     
     def assign(self, c) -> None:
-        '''TODO'''
-        self.contract = c
+        ''''''
+        self._contract = c
     
     def update(self) -> None:
-        self.contract._update()
+        self._contract._update()
 
 def generateToken() -> int:
     ''' returns a random 5 digit number'''
@@ -57,27 +62,26 @@ class Contract:
     - target: The target for the assasin that the contract is assigned tol 
     - assignedTo: The assasin who is assigned this contract 
     - completed: The current state of this contract 
-    - reward : The reward for completing this contract
+
 
     === Representation Invariants === 
     - completed must always be a boolean value 
-    - reward > -1
+
     '''
     target: Player
     assignedTo: Player
     completed: bool
-    reward: int
+
 
     def __init__(self, mar: Player, tar:Player) -> None:
         ''' Initialize a Conctract '''
         self.assignedTo = mar 
         self.target = tar
         self.completed = False
-        self.reward = 100 
     
     def __str__(self) -> str:
         ''' returns the string representation of this contract'''
-        return "Assassin: {} Target: {} Reward: {}\n".format(self.assignedTo.name, self.target.name, self.reward)
+        return "Assassin: {} Target: {}\n".format(self.assignedTo.name, self.target.name)
 
     def claim(self, code:int) -> None:
         ''' Claim this contract by confirming if <code> is == to <self.assignedTo>.<_killtoken>'''
@@ -120,6 +124,8 @@ class Game:
         str_rep = ''
         for assassin in self.assassins:
             str_rep += '{}\n'.format(str(assassin))
+        for assassin in self._dead:
+            str_rep += '{}\n'.format(str(assassin))
         return str_rep
     
     def kill(self, id:int, assassin_name: str) -> str:
@@ -128,36 +134,55 @@ class Game:
             if id == self.assassins[i]._killtoken:
                 if self.assassins[i].isAlive is True:
                     self.assassins[i].isAlive = False
-                    killed = True
                     name = self.assassins[i].name
+                    killed = True
                     self._on_death(id, assassin_name)
-                    return ("Contract confirmed, {} has been assasinated\n".format(name))
+                    if len(self.assassins) == 1:
+                        return ("Congratulations {}, You have won the game".format(assassin_name))
+                    else:
+                        return ("Contract confirmed, {} has been assasinated\n".format(name))
                 else:
                     return ('{} is already dead!'.format(self.assassins[i].name))
         if not killed:
             return ("Invalid Kill Token")
 
-    def _on_death(self, dead_id: int, name:str) -> None:
+    def _on_death(self, dead_id: int, hitman_name:str) -> None:
         '''Removes the dead player in the game and assigns a new contract'''
-        
-        for a in self.assassins:
-            if a.name == self.getPlayer(name):
-                assassin = a
-            if a.name == self.getPlayerId(dead_id):
-                killed_player = a
-        
-        c = killed_player.contract
-        c.assignTo = assassin
-        assassin.assign(c)
+        killed_player = self._on_death_helper(dead_id)
+        hitman = self._on_death_helper(hitman_name)
+
+        killed_player._contract.assignedTo = hitman
+        hitman.assign(killed_player._contract)
         self._dead.append(self.assassins.pop(self.assassins.index(killed_player)))
         
+    def _on_death_helper(self, obj: Union[int,str])-> Player:
+        ''' A helper method for _on_death'''
+        if isinstance(obj, int):
+            for i in range(len(self.assassins)):
+                if self.assassins[i].name == self.getPlayerId(obj):
+                    return self.assassins[i]
+        else:
+            for i in range(len(self.assassins)):
+                if self.assassins[i].name == self.getPlayer(obj):
+                    return self.assassins[i]
 
+    def _correct_kill(self, name:str, id:int) -> bool:
+        '''Returns True is the player with <name> has killed their target'''
+        a1, a2 = self._on_death_helper(name), self._on_death_helper(id)
+
+        return a1._contract.target.name == a2.name
 
     def addPlayer(self, assassin: Player) -> None:
         ''' Adds <assassin> to the game'''
         self.assassins.append(assassin)
 
     def getPlayer(self, name:str) -> str:
+        ''' returns the player with the <name>'''
+        for i in range(len(self.assassins)):
+            if self.assassins[i].name == name:
+                return self.assassins[i].name
+
+    def _getPlayer(self, name:str) -> str:
         ''' returns the player with the <name>'''
         for i in range(len(self.assassins)):
             if self.assassins[i].name == name:
@@ -177,6 +202,7 @@ class Game:
 
     
     def _get_a_contract(self, name:str) -> str:
+        '''Cheat method to get the contract object for the player with <name>'''
         for a in self.assassins:
             if a.name == name:
                 return a.getContract()  
@@ -209,27 +235,4 @@ class Game:
             else:
                 i = 0
                 c = Contract(player, self.assassins[i])
-                print(c)
                 player.assign(c)
-                
-        
-
-
-'''if __name__ == "__main__":
-    newGame = Game()
-    names = ['Jaivir', 'Simrat', 'Juan', 'Akksayen']
-    
-    for n in names:
-        temp = Player(n)
-        newGame.addPlayer(temp)
-        newGame.addContract(temp)    
-    
-    newGame.distribute_conracts()
-    print(newGame)
-    print(newGame.getContracts())
-    print(newGame.assassins[1].getContract())
-    tooken = newGame.assassins[3].getToken()
-    msg = newGame.kill(tooken)
-    print(msg)
-    print(newGame)
-'''

@@ -80,8 +80,7 @@ async def unban(ctx, *, member):
 async def start(ctx):
     if g.is_running() is False:
         g.runGame()
-        members = list()
-        [members.append(member) for member in bot.get_all_members()]
+        members = [member for member in bot.get_all_members()]
         
         for index in range(len(members)-1):
             temp = Objects.Player(members[index].display_name)
@@ -90,9 +89,9 @@ async def start(ctx):
         g.distribute_contracts()
 
         for index in range(len(members)-1):
-            temp = g.getPlayer(members[index].display_name)
+            temp = g._getPlayer(members[index].display_name)
             try:
-                await members[index].send('Welcome to the Game {}, this is your contract.\n{}'.format(temp.name, temp.getContract()))
+                await members[index].send('Welcome to the Game {}\n{}'.format(temp.name, temp.info()))
             except AttributeError:
                 pass
 
@@ -109,14 +108,17 @@ async def endgame(ctx):
 async def kill(ctx, args):
     player_id = int(args) #TODO make sure args is actually an integer and not a string or something
     name = ctx.author.display_name
-    for mem in bot.get_all_members():
-        if g.getPlayerId(player_id) == mem.display_name:
-            try:
-                await mem.send("You have been assasinated")
-                await ctx.author.send("{}".format(g._get_a_contract(name)))
-            except AttributeError:
-                pass    
-    await ctx.send(g.kill(player_id, name))
+    if g._correct_kill(name, player_id) is True:
+        for mem in bot.get_all_members():
+            if g.getPlayerId(player_id) == mem.display_name:
+                try:
+                    await mem.send("You have been assasinated")
+                except AttributeError:
+                    pass   
+        await ctx.send(g.kill(player_id, name))
+        await ctx.author.send("{}".format(g._get_a_contract(name))) 
+    else:
+        await ctx.send("Invalid Target")
 
 
 @bot.command()
